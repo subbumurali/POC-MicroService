@@ -13,7 +13,7 @@ public class PocMicroServiceApplication {
 		SpringApplication.run(PocMicroServiceApplication.class, args);
 
 		System.out.println("********************************************************************************");
-		System.out.println("Application started successfully !!!");
+			System.out.println("Application started successfully !!!");
 		System.out.println("********************************************************************************");
 	}
 }

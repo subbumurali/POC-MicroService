@@ -17,8 +17,8 @@ import java.util.List;
 public class Agent_Sales_Details {
     @Id
     private String agent_id;
-    private String single_premium;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    private List<Endowment_Plan> endowment_plan;
+    private List<Premium> premium;
 }
+
