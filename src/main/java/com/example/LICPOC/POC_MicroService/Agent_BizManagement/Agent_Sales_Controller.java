@@ -19,4 +19,9 @@ public class Agent_Sales_Controller {
     public Agent_Sales_Details addAgentSalesData(@RequestBody Agent_Sales_Details agentSalesDetails) {
         return agentSalesDataDB.save(agentSalesDetails);
     }
+
+    @DeleteMapping("/api/v1/deleteallagentsalesdata")
+    public void deleteAllAgentSalesDetails(){
+        agentSalesDataDB.deleteAll();
+    }
 }

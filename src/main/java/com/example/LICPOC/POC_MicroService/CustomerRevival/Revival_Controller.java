@@ -33,7 +33,7 @@ public class Revival_Controller {
         return subscriberDetailsDB.save(subscriberDetails);
     }
 
-     @DeleteMapping("/api/v1/deletepolicies/{user_id}")
+    @DeleteMapping("/api/v1/deletepolicies/{user_id}")
     public void deleteSingleUserDetails(@PathVariable String user_id)
     {
         subscriberDetailsDB.deleteById(user_id);
