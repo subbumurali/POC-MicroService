@@ -8,8 +8,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class Premium {
-    private Single_Prem single_prem;
+public class Single_Prem {
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    private List<Endowment_Plan> endowment_plan;
 }
-
 
