@@ -1,14 +1,26 @@
 package com.example.LICPOC.POC_MicroService.Agent_BizManagement;
 
-import com.example.LICPOC.POC_MicroService.CustomerRevival.SubscriberDetails;
-import com.example.LICPOC.POC_MicroService.CustomerRevival.SubscriberDetailsDB;
+import com.example.LICPOC.POC_MicroService.Agent_BizManagement.repository.AgentSalesDataDB;
+import com.example.LICPOC.POC_MicroService.Agent_BizManagement.repository.SearchRepository;
+import com.example.LICPOC.POC_MicroService.Agent_BizManagement.repository.SearchRepositoryImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class Agent_Sales_Controller {
     @Autowired
     AgentSalesDataDB agentSalesDataDB;
+
+    @Autowired
+    SearchRepository searchRepository;
+
+    @GetMapping("/api/v1/searchagentdata/{text}")
+    public List<Agent_Sales_Details> search(@PathVariable String text)
+    {
+        return searchRepository.findByText(text);
+    }
 
     @GetMapping("/api/v1/getagentsalesdata/{agent_id}")
     public Agent_Sales_Details getAgentSalesDetails(@PathVariable String agent_id){
