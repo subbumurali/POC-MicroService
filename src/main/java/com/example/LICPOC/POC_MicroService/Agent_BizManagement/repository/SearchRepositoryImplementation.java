@@ -35,7 +35,14 @@ public class SearchRepositoryImplementation implements SearchRepository{
                 new Document("$sort",
                 new Document("start_date", 1L))));
                 //new Document("$limit", 5L)));
+        System.out.println("Agent data retrieved: " + agentSalesDataResult);
+        System.out.println("Agent data retrieved; string: " + agentSalesDataResult.toString());
+
         agentSalesDataResult.forEach(doc -> agentSalesDetailsList.add(agentSalesDataConverter.read(Agent_Sales_Details.class,doc)));
+
+        System.out.println("Agent data retrieved: " + agentSalesDetailsList);
+        System.out.println("Agent data retrieved; string: " + agentSalesDetailsList.toString());
+
         return agentSalesDetailsList;
     }
 }
