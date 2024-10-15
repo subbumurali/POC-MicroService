@@ -114,6 +114,28 @@ public class Agent_Sales_Controller {
             return aggregationResults.getMappedResults();
     }
 
+    @GetMapping("/api/v1/agentsalespeerperformancecomparision/{agent_id1}/{agent_id2}")
+    public List<ResponseAgentPeerPerformanceDTO> searchTransactionPeerPerformanceComparision(@PathVariable String agent_id1,
+                                                                                             @PathVariable String agent_id2) {
+        TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+                newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in(agent_id1,agent_id2)),
+                                                          match(new Criteria("current_year").is(true)),
+                        group("agent_id")
+                                .count().as("policyCount")
+                                .sum("pol_value").as("totpol")
+                                .sum("premium_amt").as("totprem"),
+                        project("policyCount","totpol","totprem")
+                                .and("totpol").divide("policyCount").as("ticketsize"));
+
+        AggregationResults<ResponseAgentPeerPerformanceDTO> aggregationResults =
+                agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentPeerPerformanceDTO.class);
+        return aggregationResults.getMappedResults();
+    }
+
+
+
+
+
     //@GetMapping("/api/v1/getagentsalesdata/{agent_id}")
     public List<Agent_Sales_Details> getAgentSalesDetails(@PathVariable String agent_id) {
         List<Agent_Sales_Details> agentSalesDetailsList = new ArrayList<Agent_Sales_Details>();
