@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class ResponseAgentTransactionDTO {
        private String id;
        private Integer policyCount;
-       private String agent_club;
        private @Field("totpol") Integer totalPolicyValue;
        private @Field("totprem") Integer totalPremiumAmount;
 }

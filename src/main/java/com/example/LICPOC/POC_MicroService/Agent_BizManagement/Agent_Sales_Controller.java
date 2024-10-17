@@ -137,6 +137,24 @@ public class Agent_Sales_Controller {
         return aggregationResults.getMappedResults();
     }
 
+    @GetMapping("/api/v1/agentoverviewofticketsize/{agent_id1}/{agent_id2}")
+    public List<ResponseAgentOverviewOfTicketSize> agentOverviewOfTicketSize(@PathVariable String agent_id1,
+                                                                                             @PathVariable String agent_id2) {
+        TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+                newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in(agent_id1,agent_id2)),
+                        group("agent_id","current_year","premium","plan_type","quarter")
+                                .count().as("policyCount")
+                                .sum("pol_value").as("totpol")
+                                .sum("premium_amt").as("totprem"),
+                                 project("id","agent_id","current_year","premium","plan_type","quarter","ticketsize")
+                                .and("totpol").divide("policyCount").as("ticketsize"));
+
+        AggregationResults<ResponseAgentOverviewOfTicketSize> aggregationResults =
+                agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentOverviewOfTicketSize.class);
+        return aggregationResults.getMappedResults();
+    }
+
+
 
 
 
