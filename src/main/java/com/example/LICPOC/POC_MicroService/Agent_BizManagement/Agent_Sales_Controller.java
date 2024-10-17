@@ -49,7 +49,10 @@ public class Agent_Sales_Controller {
                             group("premium")
                                     .count().as("policyCount")
                                     .sum("pol_value").as("totpol")
-                                    .sum("premium_amt").as("totprem"));
+                                    .sum("premium_amt").as("totprem"),
+                                project("policyCount","totpol","totprem")
+                                .and("totpol").divide("policyCount").as("ticketsize"));
+
             AggregationResults<ResponseAgentTransactionDTO> aggregationResults =
                     agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentTransactionDTO.class);
             return aggregationResults.getMappedResults();
@@ -60,10 +63,12 @@ public class Agent_Sales_Controller {
                             group("premium")
                                     .count().as("policyCount")
                                     .sum("pol_value").as("totpol")
-                                    .sum("premium_amt").as("totprem"));
+                                    .sum("premium_amt").as("totprem"),
+                            project("policyCount","totpol","totprem")
+                            .and("totpol").divide("policyCount").as("ticketsize"));
+
             AggregationResults<ResponseAgentTransactionDTO> aggregationResults =
                     agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentTransactionDTO.class);
-
             return aggregationResults.getMappedResults();
         }
 
