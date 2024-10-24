@@ -13,19 +13,20 @@ import java.util.List;
 @Getter
 @Setter
 @Data
-@Document("agent_transaction_data")
+@Document("sales_data")
 public class Agent_Sales_Details {
     private String agent_id;
     private String premium;
-    private String plan_type;
+    private String product_id;
     private String pol_no;
     private Date start_date;
     private Integer pol_value;
     private Integer premium_amt;
-    private Boolean current_year;
+    private Integer renewal_amt;
+    private String policy_year;
     private Integer quarter;
     private Boolean new_policy;
-    private Boolean renewal;
+    private Boolean policy_active;
 
     //@Id
     //private String agent_id;
