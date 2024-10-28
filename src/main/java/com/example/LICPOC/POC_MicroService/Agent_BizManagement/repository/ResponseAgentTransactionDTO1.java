@@ -14,7 +14,9 @@ public class ResponseAgentTransactionDTO1 {
     //private String product_id;
     //private String quarter;
     private String premium;
+    private String policy_active;
     private Integer policyCount;
+    private String new_policy;
 
     private @Field("totpol") Integer totalPolicyValue;
     private @Field("totprem") Integer totalPremiumAmount;

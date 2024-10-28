@@ -61,11 +61,11 @@ public class Agent_Sales_Controller {
         return aggregationResults.getMappedResults();
     }
 
-    //@GetMapping("/api/v1/agentsalesnewbusiness")
-    /***
+    /*****
+    @GetMapping("/api/v1/agentsalesnewbusiness")
     public List<ResponseAgentTransactionDTO> searchTransactionNewBusiness() {
-        //MatchOperation matchOperation_2023 = match(new Criteria("agent_id").is("agent001")
-          //              .andOperator(match(new Criteria("policy_year").is("2023")),
+        MatchOperation matchOperation_2023 = match(new Criteria("agent_id").is("agent001")
+              .andOperator(match(new Criteria("policy_year").is("2023")),
         GroupOperation groupOperation_2023 =
                 group("policy_year")
                         .count().as("policyCount_2023")
@@ -86,50 +86,72 @@ public class Agent_Sales_Controller {
                         .and("totpol_2023").divide("policyCount_2023").as("ticketsize_2023")
                         .and("totpol_2024").divide("policyCount_2024").as("ticketsize_2024");
 
-//        Aggregation myAggregation = newAggregation(matchOperation_2023, groupOperation_2023, projectionOperation);
+        Aggregation myAggregation = newAggregation(matchOperation_2023, groupOperation_2023, projectionOperation);
 
-  //      AggregationResults<ResponseAgentTransactionDTO> aggregationResults =
-    //            agentSalesDataMongoTemplate.aggregate(myAggregation, "sales_data", ResponseAgentTransactionDTO.class);
+      AggregationResults<ResponseAgentTransactionDTO> aggregationResults =
+            agentSalesDataMongoTemplate.aggregate(myAggregation, "sales_data", ResponseAgentTransactionDTO.class);
 
         return aggregationResults.getMappedResults();
      }
         ***/
 
-    @GetMapping("/api/v1/agentsalesnewbusiness1")
+    @GetMapping("/api/v1/agentsalesbusinessdata")
     public List<ResponseAgentTransactionDTO1> searchTransactionNewBusiness1() {
         TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
                 newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in("agent001")),
-                        group("agent_id", "policy_year","premium")
+                        group("agent_id","policy_year","premium","policy_active","new_policy")
                                 .count().as("policyCount")
                                 .sum("pol_value").as("totpol")
                                 .sum("premium_amt").as("totprem")
                                 .sum("renewal_amt").as("totrenewal"),
-                        project("agent_id", "policy_year", "policyCount", "premium", "totpol", "totprem", "totrenewal", "year2023_sales", "year2024_sales")
+                        project("agent_id","policy_year","policyCount","policy_active","new_policy",
+                                "premium","totpol","totprem","totrenewal","year2023_sales","year2024_sales")
                                 .and("totpol").divide("policyCount").as("ticketsize"),
                         sort(Sort.Direction.ASC, "agent_id", "policy_year", "premium"),
-                        out("lic_poc.sales_data_results"));
+                        merge().intoCollection("sales_data_results").build());
+        //out("db.lic_poc.sales_data_results"));
 
         AggregationResults<ResponseAgentTransactionDTO1> aggregationResults =
                 agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentTransactionDTO1.class);
 
         return aggregationResults.getMappedResults();
-
-
-        /***
-         TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
-         newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in("agent001")),
-         group("agent_id", "policy_year")
-         .count().as("policyCount")
-         .sum("pol_value").as("totpol")
-         .sum("premium_amt").as("totprem")
-         .sum("renewal_amt").as("totrenewal"),
-         project("agent_id", "policy_year", "policyCount", "totpol", "totprem", "totrenewal")
-         .and("totpol").divide("policyCount").as("ticketsize"),
-         sort(Sort.Direction.ASC, "agent_id","policy_year"),
-         out("lic_poc.sales_data_results"));
-         ***/
-
     }
+
+        @GetMapping("/api/v1/agentrenewalbusinessdata")
+        public List<ResponseAgentTransactionDTO1> searchTransactionRenewalBusiness() {
+            TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+                    newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in("agent001")
+                                            .andOperator(Criteria.where("premium_amt").is("0"))),
+                            group("agent_id", "policy_year", "premium", "policy_active")
+                                    .count().as("policyCount")
+                                    .sum("pol_value").as("totpol")
+                                    .sum("premium_amt").as("totprem")
+                                    .sum("renewal_amt").as("totrenewal"),
+                            project("agent_id", "policy_year", "policyCount", "policy_active", "premium", "totpol", "totprem", "totrenewal", "year2023_sales", "year2024_sales")
+                                    .and("totpol").divide("policyCount").as("ticketsize"),
+                            sort(Sort.Direction.ASC, "agent_id", "policy_year", "premium"),
+                            merge().intoCollection("sales_data_results").build());
+            //out("db.lic_poc.sales_data_results"));
+
+            AggregationResults<ResponseAgentTransactionDTO1> aggregationResults =
+                    agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentTransactionDTO1.class);
+
+            return aggregationResults.getMappedResults();
+        }
+
+            /***
+             TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+             newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in("agent001")),
+             group("agent_id", "policy_year")
+             .count().as("policyCount")
+             .sum("pol_value").as("totpol")
+             .sum("premium_amt").as("totprem")
+             .sum("renewal_amt").as("totrenewal"),
+             project("agent_id", "policy_year", "policyCount", "totpol", "totprem", "totrenewal")
+             .and("totpol").divide("policyCount").as("ticketsize"),
+             sort(Sort.Direction.ASC, "agent_id","policy_year"),
+             out("lic_poc.sales_data_results"));
+             ***/
 
     /***
      @GetMapping("/api/v1/agentsalesnewbusiness/{agent_id}/{cur_year}") public List<ResponseAgentTransactionDTO> searchTransactionNewBusiness(@PathVariable String agent_id,
