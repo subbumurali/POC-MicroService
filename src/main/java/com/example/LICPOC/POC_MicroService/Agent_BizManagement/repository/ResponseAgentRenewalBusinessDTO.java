@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Getter
 @Setter
 @Data
-public class ResponseAgentTransactionDTO1 {
+public class ResponseAgentRenewalBusinessDTO {
     private String agent_id;
     private String policy_year;
     //private String product_id;
@@ -16,12 +16,9 @@ public class ResponseAgentTransactionDTO1 {
     private String premium;
     private String policy_active;
     private Integer policyCount;
-    private String new_policy;
 
     private @Field("totpol") Integer totalPolicyValue;
-    private @Field("totprem") Integer totalPremiumAmount;
     private @Field("totrenewal") Integer totalRenewalAmount;
 
     private @Field("ticketsize") Integer overallTicketSize;
 }
-

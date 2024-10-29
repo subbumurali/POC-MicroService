@@ -25,7 +25,7 @@ public class Agent_Sales_Details {
     private Integer renewal_amt;
     private String policy_year;
     private Integer quarter;
-    private String new_policy;
+    private Boolean new_policy;
     private Boolean policy_active;
 
     //@Id
