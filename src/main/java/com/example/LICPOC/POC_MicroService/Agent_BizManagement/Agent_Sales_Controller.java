@@ -122,6 +122,26 @@ public class Agent_Sales_Controller {
         return aggregationResults.getMappedResults();
     }
 
+    @GetMapping("/api/v1/agentperformance")
+    public List<ResponseAgentNOPTargetDTO> agentPerformance() {
+        TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+                newAggregation(Agent_Sales_Details.class,
+                        match(new Criteria("agent_id").in("agent001","agent002")),
+                        match(new Criteria("policy_year").is("2024")),
+                        group("agent_id","premium","product_id")
+                                .count().as("policyCount"),
+                        project("agent_id","product_id","premium","policyCount"),
+                        sort(Sort.Direction.ASC, "agent_id","premium","product_id"));
+
+        AggregationResults<ResponseAgentNOPTargetDTO> aggregationResults =
+                agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentNOPTargetDTO.class);
+
+        return aggregationResults.getMappedResults();
+    }
+
+
+
+
     @DeleteMapping("/api/v1/deleteallagentsalesdata")
     public void deleteAllAgentSalesDetails() {
         agentSalesDataDB.deleteAll();
