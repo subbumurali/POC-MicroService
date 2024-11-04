@@ -134,9 +134,11 @@ public class Agent_Sales_Controller {
                         match(new Criteria("agent_id").in("agent001", "agent002")),
                         match(new Criteria("policy_year").is("2024")),
                         group("agent_id", "premium", "product_id")
-                                .count().as("policyCount"),
-                        project("agent_id", "product_id", "premium", "policyCount"),
-                        sort(Sort.Direction.ASC, "agent_id", "premium", "product_id"));
+                                .count().as("policyCount")
+                                .sum("pol_value").as("totpol"),
+                        project("agent_id", "product_id", "premium", "policyCount")
+                                .and("totpol").divide("policyCount").as("ticketsize"),
+                        sort(Sort.Direction.ASC, "agent_id","premium","product_id"));
 
         AggregationResults<ResponseAgentNOPTargetDTO> aggregationResults =
                 agentSalesDataMongoTemplate.aggregate(agentSalesPerformanceTypedAggregation, ResponseAgentNOPTargetDTO.class);
@@ -152,8 +154,10 @@ public class Agent_Sales_Controller {
                         match(new Criteria("policy_year").is("2024")),
                         lookup("sales_target", "product_id", "product_id", "prdTargetMapping"),
                         group("agent_id", "premium", "product_id","prdTargetMapping")
-                                .count().as("policyCount"),
-                        project("agent_id", "product_id", "premium", "policyCount","prdTargetMapping"));
+                                .count().as("policyCount")
+                                .sum("pol_value").as("totpol"),
+                        project("agent_id", "product_id", "premium", "policyCount", "prdTargetMapping")
+                                .and("totpol").divide("policyCount").as("ticketsize"));
 
         AggregationResults<ResponseAgentPeerTargetDTO> aggregationResults =
                 agentSalesDataMongoTemplate.aggregate(agentSalesTargetTypedAggregation, ResponseAgentPeerTargetDTO.class);

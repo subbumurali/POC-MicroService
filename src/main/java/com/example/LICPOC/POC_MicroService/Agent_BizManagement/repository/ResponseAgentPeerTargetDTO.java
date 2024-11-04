@@ -13,6 +13,13 @@ public class ResponseAgentPeerTargetDTO {
     private String product_id;
     private String premium;
     private Integer policyCount;
+
+    private @Field("ticketsize") Integer overallTicketSize;
     private Object prdTargetMapping;
 }
+
+
+
+
+
 

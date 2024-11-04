@@ -13,5 +13,6 @@ public class ResponseAgentNOPTargetDTO {
     private String product_id;
     private String premium;
     private Integer policyCount;
-    private Integer target_number;
+
+    private @Field("ticketsize") Integer overallTicketSize;
 }
