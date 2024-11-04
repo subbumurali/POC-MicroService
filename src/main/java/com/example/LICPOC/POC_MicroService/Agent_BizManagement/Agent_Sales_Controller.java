@@ -2,6 +2,7 @@ package com.example.LICPOC.POC_MicroService.Agent_BizManagement;
 
 import com.example.LICPOC.POC_MicroService.Agent_BizManagement.repository.*;
 import com.mongodb.client.MongoClient;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -12,7 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import static com.mongodb.client.model.Accumulators.mergeObjects;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.aggregation.AggregationExpression.from;
+import static org.springframework.data.mongodb.core.aggregation.SelectionOperators.First.first;
+import static org.springframework.data.mongodb.core.aggregation.SetOperation.set;
 
 @RestController
 public class Agent_Sales_Controller {
@@ -72,26 +77,26 @@ public class Agent_Sales_Controller {
 
     @GetMapping("/api/v1/agentsalesnewbusinessproductwise/{product_id}/{quarter_id}")
     public List<ResponseAgentNewProductWiseQuarterDTO> searchTransactionNewBusinessProductwise(
-                    @PathVariable String product_id,
-                    @PathVariable String quarter_id) {
-        TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+            @PathVariable String product_id,
+            @PathVariable String quarter_id) {
+        TypedAggregation<Agent_Sales_Details> agentSalesNewBusinessDetailsTypedAggregation =
                 newAggregation(Agent_Sales_Details.class,
-                                match(new Criteria("agent_id").is("agent001")),
-                                match(new Criteria("new_policy").is(true)),
-                                match(new Criteria("product_id").is(product_id)),
-                                match(new Criteria("quarter").is(Integer.valueOf(quarter_id))),
-                        group("agent_id", "policy_year", "product_id","quarter","premium", "policy_active")
+                        match(new Criteria("agent_id").is("agent001")),
+                        match(new Criteria("new_policy").is(true)),
+                        match(new Criteria("product_id").is(product_id)),
+                        match(new Criteria("quarter").is(Integer.valueOf(quarter_id))),
+                        group("agent_id", "policy_year", "product_id", "quarter", "premium", "policy_active")
                                 .count().as("policyCount")
                                 .sum("pol_value").as("totpol")
                                 .sum("premium_amt").as("totprem"),
                         //.sum("renewal_amt").as("totrenewal"),
-                        project("agent_id", "policy_year","product_id","quarter", "premium", "policy_active",
-                                "policyCount","totpol", "totprem")
+                        project("agent_id", "policy_year", "product_id", "quarter", "premium", "policy_active",
+                                "policyCount", "totpol", "totprem")
                                 .and("totpol").divide("policyCount").as("ticketsize"),
                         sort(Sort.Direction.ASC, "agent_id", "policy_year", "premium", "new_policy"));
 
         AggregationResults<ResponseAgentNewProductWiseQuarterDTO> aggregationResults =
-                agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentNewProductWiseQuarterDTO.class);
+                agentSalesDataMongoTemplate.aggregate(agentSalesNewBusinessDetailsTypedAggregation, ResponseAgentNewProductWiseQuarterDTO.class);
 
         return aggregationResults.getMappedResults();
     }
@@ -100,46 +105,61 @@ public class Agent_Sales_Controller {
     public List<ResponseAgentRenewalProductWiseQuarterDTO> searchTransactionRenewalBusinessProductwise(
             @PathVariable String product_id,
             @PathVariable String quarter_id) {
-        TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+        TypedAggregation<Agent_Sales_Details> agentRenewalDetailsTypedAggregation =
                 newAggregation(Agent_Sales_Details.class,
                         match(new Criteria("agent_id").is("agent001")),
                         match(new Criteria("new_policy").is(false)),
                         match(new Criteria("product_id").is(product_id)),
                         match(new Criteria("quarter").is(Integer.valueOf(quarter_id))),
-                        group("agent_id", "policy_year", "product_id","quarter","premium","policy_active")
+                        group("agent_id", "policy_year", "product_id", "quarter", "premium", "policy_active")
                                 .count().as("policyCount")
                                 .sum("pol_value").as("totpol")
                                 .sum("renewal_amt").as("totrenewal"),
                         //.sum("renewal_amt").as("totrenewal"),
-                        project("agent_id", "policy_year","product_id","quarter", "premium", "policy_active",
-                                "policyCount","totpol", "totrenewal")
+                        project("agent_id", "policy_year", "product_id", "quarter", "premium", "policy_active",
+                                "policyCount", "totpol", "totrenewal")
                                 .and("totpol").divide("policyCount").as("ticketsize"),
                         sort(Sort.Direction.ASC, "agent_id", "policy_year", "premium", "new_policy"));
 
         AggregationResults<ResponseAgentRenewalProductWiseQuarterDTO> aggregationResults =
-                agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentRenewalProductWiseQuarterDTO.class);
+                agentSalesDataMongoTemplate.aggregate(agentRenewalDetailsTypedAggregation, ResponseAgentRenewalProductWiseQuarterDTO.class);
 
         return aggregationResults.getMappedResults();
     }
 
     @GetMapping("/api/v1/agentperformance")
     public List<ResponseAgentNOPTargetDTO> agentPerformance() {
-        TypedAggregation<Agent_Sales_Details> agentSalesDetailsTypedAggregation =
+        TypedAggregation<Agent_Sales_Details> agentSalesPerformanceTypedAggregation =
                 newAggregation(Agent_Sales_Details.class,
-                        match(new Criteria("agent_id").in("agent001","agent002")),
+                        match(new Criteria("agent_id").in("agent001", "agent002")),
                         match(new Criteria("policy_year").is("2024")),
-                        group("agent_id","premium","product_id")
+                        group("agent_id", "premium", "product_id")
                                 .count().as("policyCount"),
-                        project("agent_id","product_id","premium","policyCount"),
-                        sort(Sort.Direction.ASC, "agent_id","premium","product_id"));
+                        project("agent_id", "product_id", "premium", "policyCount"),
+                        sort(Sort.Direction.ASC, "agent_id", "premium", "product_id"));
 
         AggregationResults<ResponseAgentNOPTargetDTO> aggregationResults =
-                agentSalesDataMongoTemplate.aggregate(agentSalesDetailsTypedAggregation, ResponseAgentNOPTargetDTO.class);
+                agentSalesDataMongoTemplate.aggregate(agentSalesPerformanceTypedAggregation, ResponseAgentNOPTargetDTO.class);
 
         return aggregationResults.getMappedResults();
     }
 
+    @GetMapping("/api/v1/agenttargetperformance")
+    public List<ResponseAgentPeerTargetDTO> agentTargetPerformance() {
+        TypedAggregation<Agent_Sales_Details> agentSalesTargetTypedAggregation =
+                newAggregation(Agent_Sales_Details.class,
+                        match(new Criteria("agent_id").in("agent001")),
+                        match(new Criteria("policy_year").is("2024")),
+                        lookup("sales_target", "product_id", "product_id", "prdTargetMapping"),
+                        group("agent_id", "premium", "product_id","prdTargetMapping")
+                                .count().as("policyCount"),
+                        project("agent_id", "product_id", "premium", "policyCount","prdTargetMapping"));
 
+        AggregationResults<ResponseAgentPeerTargetDTO> aggregationResults =
+                agentSalesDataMongoTemplate.aggregate(agentSalesTargetTypedAggregation, ResponseAgentPeerTargetDTO.class);
+
+        return aggregationResults.getMappedResults();
+    }
 
 
     @DeleteMapping("/api/v1/deleteallagentsalesdata")
@@ -147,13 +167,14 @@ public class Agent_Sales_Controller {
         agentSalesDataDB.deleteAll();
     }
 
+
     @PostMapping("/api/v1/addagentsalestransactiondata")
     public List<Agent_Sales_Details> addAgentSalesData
             (@RequestBody List<Agent_Sales_Details> agentSalesDetailsList) {
         return new ArrayList<>(agentSalesDataDB.saveAll(agentSalesDetailsList));
     }
-}
 
+}
 
 
 /***

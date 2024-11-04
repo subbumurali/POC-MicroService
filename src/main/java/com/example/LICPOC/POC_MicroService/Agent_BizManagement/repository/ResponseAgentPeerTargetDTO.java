@@ -8,10 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Getter
 @Setter
 @Data
-public class ResponseAgentNOPTargetDTO {
+public class ResponseAgentPeerTargetDTO {
     private String agent_id;
     private String product_id;
     private String premium;
     private Integer policyCount;
-    private Integer target_number;
+    private Object prdTargetMapping;
 }
+
