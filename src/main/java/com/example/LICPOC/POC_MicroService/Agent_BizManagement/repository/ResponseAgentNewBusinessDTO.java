@@ -19,6 +19,7 @@ public class ResponseAgentNewBusinessDTO {
 
     private @Field("totpol") Integer totalPolicyValue;
     private @Field("totprem") Integer totalPremiumAmount;
+    private @Field("totrenewal") Integer totalRenewalAmount;
 
     private @Field("ticketsize") Integer overallTicketSize;
 }

@@ -41,10 +41,10 @@ public class Agent_Sales_Controller {
                         group("agent_id", "policy_year", "premium", "policy_active")
                                 .count().as("policyCount")
                                 .sum("pol_value").as("totpol")
-                                .sum("premium_amt").as("totprem"),
-                        //.sum("renewal_amt").as("totrenewal"),
+                                .sum("premium_amt").as("totprem")
+                                .sum("renewal_amt").as("totrenewal"),
                         project("agent_id", "policy_year", "premium", "policyCount", "policy_active",
-                                "totpol", "totprem")
+                                "totpol", "totprem", "totrenewal")
                                 .and("totpol").divide("policyCount").as("ticketsize"),
                         sort(Sort.Direction.ASC, "agent_id", "policy_year", "premium", "newpolicy"));
 
@@ -176,6 +176,26 @@ public class Agent_Sales_Controller {
     public List<Agent_Sales_Details> addAgentSalesData
             (@RequestBody List<Agent_Sales_Details> agentSalesDetailsList) {
         return new ArrayList<>(agentSalesDataDB.saveAll(agentSalesDetailsList));
+    }
+
+
+    @GetMapping("/api/v1/agentadditionalmetrics")
+    public List<ResponseAdditionalBusinessMetricsDTO> determineAdditionalMetrics() {
+        TypedAggregation<Agent_Sales_Details> agentAdditionalMetricsDetails =
+                newAggregation(Agent_Sales_Details.class, match(new Criteria("agent_id").in("agent001","agent002")
+                                .andOperator(Criteria.where("new_policy").is(true))),
+                        group("agent_id", "premium", "product_id", "policy_year")
+                                .count().as("policyCount")
+                                .sum("pol_value").as("totpol")
+                                .sum("rider_policy").as("totrider"),
+                        project("agent_id", "policy_year", "premium", "product_id","totrider")
+                                .and("totpol").divide("policyCount").as("totaverage"),
+                        sort(Sort.Direction.ASC, "agent_id", "premium", "product_id","policy_year"));
+
+        AggregationResults<ResponseAdditionalBusinessMetricsDTO> aggregationResults =
+                agentSalesDataMongoTemplate.aggregate(agentAdditionalMetricsDetails, ResponseAdditionalBusinessMetricsDTO.class);
+
+        return aggregationResults.getMappedResults();
     }
 
 }

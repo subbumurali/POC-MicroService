@@ -19,6 +19,7 @@ public class Agent_Sales_Details {
     private String premium;
     private String product_id;
     private String pol_no;
+    private Integer rider_policy;
     private Date start_date;
     private Integer pol_value;
     private Integer premium_amt;
